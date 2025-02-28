@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Order Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #1e1e2e;
+            color: #f8f8f8;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .word-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 36px;
+            cursor: pointer;
+            padding: 15px 30px;
+            margin: 10px;
+            display: inline-block;
+            background: #7f5af0;
+            color: #fff;
+            border-radius: 10px;
+            transition: transform 0.2s, opacity 0.5s ease-out;
+            user-select: none;
+        }
+
+        h1:hover {
+            background: #ffcc00;
+            transform: scale(1.1);
+        }
+
+        h1:active {
+            transform: scale(0.9);
+        }
+
+        .vanish {
+            opacity: 0;
+            transform: scale(0);
+            transition: transform 0.3s, opacity 0.5s ease-out;
+        }
+
+        #timer {
+            font-size: 24px;
+            margin-top: 20px;
+            background: #ffcc00;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #1e1e2e;
+            font-weight: bold;
+        }
+
+        #restart {
+            display: none;
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 18px;
+            border: none;
+            background: #7f5af0;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #restart:hover {
+            background: #ffcc00;
+            color: #1e1e2e;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="word-container" id="wordContainer"></div>
+
+    <div id="timer">Time: 0s</div>
+    <button id="restart" onclick="restartGame()">Play Again</button>
+
+    <script>
+        let numbers = ["1", "2", "3", "4", "5"];
+        let startTime = 0;
+        let currentNumber = 1; 
+        let gameStarted = false;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
+
+        function generateNumbers() {
+            let container = document.getElementById("wordContainer");
+            container.innerHTML = ""; // Clear previous numbers
+            shuffleArray(numbers); // Shuffle numbers before displaying
+
+            numbers.forEach(num => {
+                let h1 = document.createElement("h1");
+                h1.textContent = num;
+                h1.onclick = checkOrder;
+                container.appendChild(h1);
+            });
+        }
+
+        function checkOrder(event) {
+            if (!gameStarted) {
+                gameStarted = true;
+                startTime = Date.now();
+                updateTimer();
+            }
+
+            let clickedNumber = parseInt(event.target.textContent);
+
+            if (clickedNumber === currentNumber) {
+                event.target.classList.add("vanish");
+                currentNumber++;
+
+                if (currentNumber > numbers.length) {
+                    endGame();
+                }
+            }
+        }
+
+        function updateTimer() {
+            if (gameStarted) {
+                let elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                document.getElementById("timer").innerText = `Time: ${elapsedTime}s`;
+                if (currentNumber <= numbers.length) {
+                    requestAnimationFrame(updateTimer);
+                }
+            }
+        }
+
+        function endGame() {
+            gameStarted = false;
+            document.getElementById("restart").style.display = "block";
+        }
+
+        function restartGame() {
+            document.getElementById("restart").style.display = "none";
+            currentNumber = 1;
+            gameStarted = false;
+            document.getElementById("timer").innerText = "Time: 0s";
+            generateNumbers(); // Regenerate numbers in a new order
+        }
+
+        generateNumbers(); // Start the game with shuffled numbers
+    </script>
+
+</body>
+</html>
